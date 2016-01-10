@@ -17,6 +17,8 @@ set :branch, 'master'
 
 # For system-wide RVM install.
 #   set :rvm_path, '/usr/local/rvm/bin/rvm'
+set :rvm_path, '$HOME/.rvm/bin/rvm'
+
 
 # Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.
 # They will be linked in the 'deploy:link_shared_paths' step.
@@ -33,9 +35,9 @@ task :environment do
   # If you're using rbenv, use this to load the rbenv environment.
   # Be sure to commit your .ruby-version or .rbenv-version to your repository.
   # invoke :'rbenv:load'
-
   # For those using RVM, use this to load an RVM version@gemset.
    invoke :'rvm:use[rvm use ruby-2.2.3@mgcgt]'
+   echo "$HOME/.rvm/bin/"
 end
 
 # Put any custom mkdir's in here for when `mina setup` is ran.
