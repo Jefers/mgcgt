@@ -2,10 +2,68 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= content_for?(:title) ? yield(:title) : "Mgcgt" %></title>
+    <title><%= content_for?(:title) ? yield(:title) : "MGC-GT" %></title>
     <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Mgcgt" %>">
     <%= stylesheet_link_tag 'application', media: 'all' %>
     <%= javascript_include_tag 'application' %>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <%= favicon_link_tag %>
+<style>
+  html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.carousel,
+.item,
+.active {
+    height: 80%;
+}
+
+.carousel-inner {
+    height: 80%;
+}
+
+/* Background images are set within the HTML using inline CSS, not here */
+
+.fill {
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+}
+
+footer {
+    margin: 50px 0;
+}
+
+.mg {
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+
+}
+
+.forsale {
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index:100;
+
+}
+</style>
+
     <%= csrf_meta_tags %>
   </head>
   <body>
@@ -16,5 +74,15 @@
        <%= render 'layouts/messages' %>
        <%= yield %>
     </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+
+    <!-- Script to Activate the Carousel -->
+    <script>
+    $('.carousel').carousel({
+        interval: 5000 //changes the speed
+    })
+    </script>
   </body>
 </html>

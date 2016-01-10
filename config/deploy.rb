@@ -1,40 +1,94 @@
-set :application, 'my_app_name'
-set :repo_url, 'git@example.com:me/my_repo.git'
+require 'mina/bundler'
+require 'mina/rails'
+require 'mina/git'
+# require 'mina/rbenv'  # for rbenv support. (http://rbenv.org)
+ require 'mina/rvm'    # for rvm support. (http://rvm.io)
 
-# ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }
+# Basic settings:
+#   domain       - The hostname to SSH to.
+#   deploy_to    - Path to deploy into.
+#   repository   - Git repo to clone from. (needed by mina/git)
+#   branch       - Branch name to deploy. (needed by mina/git)
 
-# set :deploy_to, '/var/www/my_app'
-# set :scm, :git
+set :domain, 'mgc-gt.com'
+set :deploy_to, '/var/www/mgc-gt.com'
+set :repository, 'git@github.com:Jefers/mgcgt.git'
+set :branch, 'master'
 
-# set :format, :pretty
-# set :log_level, :debug
-# set :pty, true
+# For system-wide RVM install.
+#   set :rvm_path, '/usr/local/rvm/bin/rvm'
 
-# set :linked_files, %w{config/database.yml}
-# set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
+# Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.
+# They will be linked in the 'deploy:link_shared_paths' step.
+set :shared_paths, ['config/database.yml', 'config/secrets.yml', 'log']
 
-# set :default_env, { path: "/opt/ruby/bin:$PATH" }
-# set :keep_releases, 5
+# Optional settings:
+   set :user, 'mgcgt'    # Username in the server to SSH to.
+#   set :port, '30000'     # SSH port number.
+#   set :forward_agent, true     # SSH forward_agent.
 
-namespace :deploy do
+# This task is the environment that is loaded for most commands, such as
+# `mina deploy` or `mina rake`.
+task :environment do
+  # If you're using rbenv, use this to load the rbenv environment.
+  # Be sure to commit your .ruby-version or .rbenv-version to your repository.
+  # invoke :'rbenv:load'
 
-  desc 'Restart application'
-  task :restart do
-    on roles(:app), in: :sequence, wait: 5 do
-      # Your restart mechanism here, for example:
-      # execute :touch, release_path.join('tmp/restart.txt')
-    end
-  end
-
-  after :restart, :clear_cache do
-    on roles(:web), in: :groups, limit: 3, wait: 10 do
-      # Here we can do anything such as:
-      # within release_path do
-      #   execute :rake, 'cache:clear'
-      # end
-    end
-  end
-
-  after :finishing, 'deploy:cleanup'
-
+  # For those using RVM, use this to load an RVM version@gemset.
+   invoke :'rvm:use[rvm use ruby-2.2.3@mgcgt]'
 end
+
+# Put any custom mkdir's in here for when `mina setup` is ran.
+# For Rails apps, we'll make some of the shared paths that are shared between
+# all releases.
+task :setup => :environment do
+  queue! %[mkdir -p "#{deploy_to}/#{shared_path}/log"]
+  queue! %[chmod g+rx,u+rwx "#{deploy_to}/#{shared_path}/log"]
+
+  queue! %[mkdir -p "#{deploy_to}/#{shared_path}/config"]
+  queue! %[chmod g+rx,u+rwx "#{deploy_to}/#{shared_path}/config"]
+
+  queue! %[touch "#{deploy_to}/#{shared_path}/config/database.yml"]
+  queue! %[touch "#{deploy_to}/#{shared_path}/config/secrets.yml"]
+  queue  %[echo "-----> Be sure to edit '#{deploy_to}/#{shared_path}/config/database.yml' and 'secrets.yml'."]
+
+  if repository
+    repo_host = repository.split(%r{@|://}).last.split(%r{:|\/}).first
+    repo_port = /:([0-9]+)/.match(repository) && /:([0-9]+)/.match(repository)[1] || '22'
+
+    queue %[
+      if ! ssh-keygen -H  -F #{repo_host} &>/dev/null; then
+        ssh-keyscan -t rsa -p #{repo_port} -H #{repo_host} >> ~/.ssh/known_hosts
+      fi
+    ]
+  end
+end
+
+desc "Deploys the current version to the server."
+task :deploy => :environment do
+  to :before_hook do
+    # Put things to run locally before ssh
+  end
+  deploy do
+    # Put things that will set up an empty directory into a fully set-up
+    # instance of your project.
+    invoke :'git:clone'
+    invoke :'deploy:link_shared_paths'
+    invoke :'bundle:install'
+    invoke :'rails:db_migrate'
+    invoke :'rails:assets_precompile'
+    invoke :'deploy:cleanup'
+
+    to :launch do
+      queue "mkdir -p #{deploy_to}/#{current_path}/tmp/"
+      queue "touch #{deploy_to}/#{current_path}/tmp/restart.txt"
+    end
+  end
+end
+
+# For help in making your deploy script, see the Mina documentation:
+#
+#  - http://nadarei.co/mina
+#  - http://nadarei.co/mina/tasks
+#  - http://nadarei.co/mina/settings
+#  - http://nadarei.co/mina/helpers

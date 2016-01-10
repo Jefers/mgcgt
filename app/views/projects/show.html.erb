@@ -1,0 +1,21 @@
+<p id="notice"><%= notice %></p>
+<p>
+  <%= image_tag attachment_url(@project, :profile_image, :fill, 300, 225, format: "jpg") %>
+</p>
+<p>
+  <strong>Title:</strong>
+  <%= @project.title %>
+</p>
+
+<p>
+  <strong>Subtitle:</strong>
+  <%= @project.subtitle %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @project.description %>
+</p>
+
+<%= link_to 'Edit', edit_project_path(@project) %> |
+<%= link_to 'Back', projects_path %>
