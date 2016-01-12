@@ -9,23 +9,30 @@ require 'mina/git'
 #   deploy_to    - Path to deploy into.
 #   repository   - Git repo to clone from. (needed by mina/git)
 #   branch       - Branch name to deploy. (needed by mina/git)
-
+set :user, 'mgcgt'
 set :domain, 'mgc-gt.com'
-set :deploy_to, '/var/www/mgc-gt.com'
-set :repository, 'git@github.com:Jefers/mgcgt.git'
+set :deploy_to, '$HOME/var/www/mgc-gt.com'
+set :repository, 'https://github.com/Jefers/mgcgt.git'
 set :branch, 'master'
+
+task :logs do
+  queue 'echo "Contents of the log file are as follows:"'
+  queue "echo $USER"
+  queue "echo $PWD"
+end
 
 # For system-wide RVM install.
 #   set :rvm_path, '/usr/local/rvm/bin/rvm'
 set :rvm_path, '$HOME/.rvm/bin/rvm'
-
+set_default :rvm_path, "$HOME/.rvm/scripts/rvm"
 
 # Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.
 # They will be linked in the 'deploy:link_shared_paths' step.
-set :shared_paths, ['config/database.yml', 'config/secrets.yml', 'log']
+set :shared_paths, ['config/database.yml', 'log']
+# set :shared_paths, ['config/database.yml', 'config/secrets.yml', 'log']
 
 # Optional settings:
-   set :user, 'mgcgt'    # Username in the server to SSH to.
+    # Username in the server to SSH to.
 #   set :port, '30000'     # SSH port number.
 #   set :forward_agent, true     # SSH forward_agent.
 
@@ -36,7 +43,9 @@ task :environment do
   # Be sure to commit your .ruby-version or .rbenv-version to your repository.
   # invoke :'rbenv:load'
   # For those using RVM, use this to load an RVM version@gemset.
-   invoke :'rvm:use[rvm use ruby-2.2.3@mgcgt]'
+  set_default :rvm_path, "$HOME/.rvm/bin/rvm"
+  set :rvm_path, "$HOME/.rvm/scripts/rvm"
+   # invoke :'rvm:use[ rvm use ruby-2.2.3@mgcgt ]'
    echo "$HOME/.rvm/bin/"
 end
 
@@ -76,9 +85,9 @@ task :deploy => :environment do
     # instance of your project.
     invoke :'git:clone'
     invoke :'deploy:link_shared_paths'
-    invoke :'bundle:install'
-    invoke :'rails:db_migrate'
-    invoke :'rails:assets_precompile'
+     invoke :'bundle:install'
+     invoke :'rails:db_migrate'
+     invoke :'rails:assets_precompile'
     invoke :'deploy:cleanup'
 
     to :launch do
