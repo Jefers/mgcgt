@@ -2,7 +2,7 @@ require 'mina/bundler'
 require 'mina/rails'
 require 'mina/git'
 # require 'mina/rbenv'  # for rbenv support. (http://rbenv.org)
- require 'mina/rvm'    # for rvm support. (http://rvm.io)
+ # require 'mina/rvm'    # for rvm support. (http://rvm.io)
 
 # Basic settings:
 #   domain       - The hostname to SSH to.
@@ -14,7 +14,7 @@ set :domain, 'mgc-gt.com'
 set :deploy_to, '$HOME/var/www/mgc-gt.com'
 set :repository, 'https://github.com/Jefers/mgcgt.git'
 set :branch, 'master'
-
+# set :rbenv_path, '$HOME/.rbenv/bin'
 task :logs do
   queue 'echo "Contents of the log file are as follows:"'
   queue "echo $USER"
@@ -23,8 +23,8 @@ end
 
 # For system-wide RVM install.
 #   set :rvm_path, '/usr/local/rvm/bin/rvm'
-set :rvm_path, '$HOME/.rvm/bin/rvm'
-set_default :rvm_path, "$HOME/.rvm/scripts/rvm"
+# set :rvm_path, '$HOME/.rvm/scripts/rvm'
+# set_default :rvm_path, "$HOME/.rvm/scripts/rvm"
 
 # Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.
 # They will be linked in the 'deploy:link_shared_paths' step.
@@ -41,12 +41,12 @@ set :shared_paths, ['config/database.yml', 'log']
 task :environment do
   # If you're using rbenv, use this to load the rbenv environment.
   # Be sure to commit your .ruby-version or .rbenv-version to your repository.
-  # invoke :'rbenv:load'
+   # invoke :'rbenv:load'
   # For those using RVM, use this to load an RVM version@gemset.
-  set_default :rvm_path, "$HOME/.rvm/bin/rvm"
-  set :rvm_path, "$HOME/.rvm/scripts/rvm"
-   # invoke :'rvm:use[ rvm use ruby-2.2.3@mgcgt ]'
-   echo "$HOME/.rvm/bin/"
+  # set_default :rvm_path, "$HOME/.rvm/scripts/rvm"
+  # set :rvm_path, "$HOME/.rvm/scripts/rvm"
+   # invoke :'rvm:use[rvm use ruby-2.2.3@mgcgt]'
+   # echo "$HOME/.rvm/bin/"
 end
 
 # Put any custom mkdir's in here for when `mina setup` is ran.
