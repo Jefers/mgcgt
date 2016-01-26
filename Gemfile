@@ -18,7 +18,8 @@ group :development do
 end
 gem 'bootstrap-sass'
 gem 'high_voltage'
-gem 'mysql2', '~> 0.3.18'
+# gem 'mysql2', '~> 0.3.18'
+gem 'pg'
 group :development do
   gem 'rake'
   gem 'better_errors'
